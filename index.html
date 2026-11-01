@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitation de Mariage</title>
+    <!-- Polices élégantes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #780000;
+            --primary-light: #a82020;
+            --cream: #fdf0d5;
+            --gold: #d4af37;
+            --gold-light: #f3e5ab;
+            --text-dark: #2c1810;
+            --text-muted: #6b5b52;
+            --shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #121212;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Conteneur principal façon écran mobile */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            max-height: 900px;
+            position: relative;
+            background-color: #000;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-height: 900px) and (min-width: 500px) {
+            .app-container {
+                border-radius: 20px;
+                height: 95vh;
+            }
+        }
+
+        /* ------------------------------------
+           1. ENVELOPPE ET ANIMATION D'OUVERTURE
+        ------------------------------------ */
+        .envelope-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Centre l'enveloppe sur l'écran */
+            width: 75%;                       /* Largeur responsive */
+            max-width: 360px;
+            height: 85vh;                     /* Hauteur réduite (passée de 100% à 65% de l'écran) */
+            max-height: 620px;
+            z-index: 100;
+            perspective: 1200px;
+            cursor: pointer;
+            transition: opacity 0.5s ease 1.5s, visibility 0.5s ease 1.5s;
+        }
+
+        .envelope-wrapper.hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            display: none !important; /* Force la disparition totale */
+                }
+
+        /* Image de base envelope5.jpg */
+        .envelope-initial {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+            transition: opacity 0.2s ease;
+        }
+
+        .envelope-wrapper.clicked .envelope-initial {
+            opacity: 0;
+        }
+
+        /* Volets coupés pour envelope5-2.jpg */
+        .split-doors {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            display: flex;
+        }
+
+        .door {
+            width: 50%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1);
+            transform-style: preserve-3d;
+        }
+
+        .door img {
+            position: absolute;
+            top: 0;
+            width: 200%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .door.left img {
+            left: 0;
+        }
+
+        .door.right img {
+            right: 0;
+        }
+
+        /* Animation au clic : écartement des portes */
+        .envelope-wrapper.clicked .door.left {
+            transform: translateX(-100%) rotateY(-20deg);
+        }
+
+        .envelope-wrapper.clicked .door.right {
+            transform: translateX(100%) rotateY(20deg);
+        }
+
+        /* Indication de clic */
+        .click-hint {
+            position: absolute;
+            bottom: -55px;                    /* Place le bouton sous le bas de l'enveloppe */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: linear-gradient(135deg, var(--cream) 0%, #ffffff 100%);
+            color: var(--primary);
+            border: 1px solid var(--gold);
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            animation: pulse 1.5s infinite;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+        }
+        /* Disparition immédiate du bouton au clic */
+        .envelope-wrapper.clicked .click-hint {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.9; }
+            50% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+        }
+
+        /* ------------------------------------
+           2. CONTENU SCROLLABLE DE L'INVITATION
+        ------------------------------------ */
+        .scroll-container {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            background: #fbf8f3;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+            padding-bottom: 40px;
+        }
+
+        .scroll-container.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Animations au défilement */
+        .animated-block {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .animated-block.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* SECTION 1: Invitation principale (cadre4.jpg) */
+        .section-main {
+            min-height: auto;
+            padding: 25px 15px 0px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-frame {
+            width: 100%;
+            min-height: 100vh;
+            margin-bottom: 0 !important;
+            position: relative;
+            background-image: url('cadre4.jpg');
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 30px 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border-radius: 12px;
+        }
+
+        .invitation-title {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .couples-names {
+            font-family: 'Alex Brush', cursive;
+            font-size: 3.2rem;
+            color: var(--primary);
+            line-height: 1.2;
+            margin: 10px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .ampersand {
+            font-size: 2.2rem;
+            color: var(--gold);
+            display: block;
+            margin: -5px 0;
+        }
+
+        .invitation-text {
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: var(--text-dark);
+            margin: 20px 0 30px;
+            font-weight: 400;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 240px;
+        }
+
+        .btn-custom {
+            background: linear-gradient(135deg, var(--primary) 0%, #4a0000 100%);
+            color: #fff;
+            border: 1px solid var(--gold);
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(120, 0, 0, 0.25);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-custom:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 5px rgba(120, 0, 0, 0.2);
+        }
+
+        /* SECTION 2: Calendrier (cadre calendrier1.jpg) */
+        .section-calendar {
+            padding: 0px 15px;
+            margin-top: -10px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .calendar-frame {
+            width: 120%;
+            min-height: 780px;
+            margin: 0 !important;
+            background-image: url('cadre calendrier1.jpg');
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column !important;
+            align-items: center;
+            justify-content: center;
+            padding: 90px 45px 275px;
+            text-align: center;
+          
+        }
+
+        .calendar-header-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .calendar-month {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        /* Grid du calendrier Décembre 2026 */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            width: 100%;
+            max-width: 260px;
+            margin: 0 auto;
+        }
+
+        .day-name {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            padding-bottom: 5px;
+        }
+
+        .day-number {
+            font-size: 0.75rem;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            color: #444;
+        }
+
+        .day-number.empty {
+            visibility: hidden;
+        }
+
+        /* Le jour J : 26 Décembre 2026 */
+        .day-number.special-day {
+            color: #fff;
+            font-weight: 700;
+            z-index: 1;
+        }
+
+        .day-number.special-day::before {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background-color: var(--primary);
+            clip-path: path('M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z');
+            transform: scale(1.1);
+            z-index: -1;
+            animation: heartPulse 1.5s infinite alternate ease-in-out;
+        }
+
+       
+
+
+        .calendar-time i {
+            color: var(--gold);
+            font-size: 0.9rem;
+        }
+
+        @keyframes heartPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.25); }
+        }
+
+        /* SECTION 3: Adresse et Salle */
+        .section-location {
+            padding: 0px 20px 20px !important; /* Marge du haut à 0 */
+            margin-top: -150px;
+            text-align: center;
+        }
+
+        .location-card {
+            background: #ffffff;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 15px;
+            padding: 30px 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-top: 0 !important;
+        }
+
+        .location-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .venue-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .venue-address {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            max-width: 280px;
+        }
+
+        .btn-maps {
+            margin-top: 10px;
+            background: linear-gradient(135deg, #1a5e20 0%, #0d3311 100%);
+            border-color: #81c784;
+        }
+
+        /* SECTION 4: Message de bienvenue & Décoration */
+        .section-welcome {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .welcome-box {
+            position: relative;
+            padding: 30px 15px;
+        }
+
+        .welcome-title {
+            font-family: 'Alex Brush', cursive;
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .welcome-subtitle {
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        .decor-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            color: var(--gold);
+        }
+
+        .decor-line::before, .decor-line::after {
+            content: '';
+            height: 1px;
+            width: 50px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+        }
+
+        /* Effet de pétales qui tombent */
+        .petals-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            overflow: hidden;
+        }
+
+        .petal {
+            position: absolute;
+            background: radial-gradient(circle, #f8bbd0 0%, #e91e63 100%);
+            border-radius: 15px 0 15px 0;
+            opacity: 0.7;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-20px) rotate(0deg) translateX(0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(900px) rotate(360deg) translateX(100px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Générateur de pétales -->
+        <div class="petals-container" id="petalsContainer"></div>
+
+        <!-- 1. ENVELOPPE INTERACTIVE -->
+        <div class="envelope-wrapper" id="envelopeWrapper">
+            <!-- Image de départ : envelope5.jpg -->
+            <img src="envelope5.jpg" alt="Enveloppe Fermée" class="envelope-initial" id="envelopeInitial">
+            
+            <!-- Portes divisées avec envelope5-2.jpg -->
+            <div class="split-doors">
+                <div class="door left">
+                    <img src="envelope5-2.jpg" alt="Ouverture Enveloppe Gauche">
+                </div>
+                <div class="door right">
+                    <img src="envelope5-2.jpg" alt="Ouverture Enveloppe Droite">
+                </div>
+            </div>
+
+            <!-- Hint de Clic -->
+            <div class="click-hint">
+                <i class="fa-solid fa-envelope-open"></i> Touchez pour ouvrir
+            </div>
+        </div>
+
+        <!-- 2. CONTENU SCROLLABLE -->
+        <div class="scroll-container" id="scrollContainer">
+            
+            <!-- SECTION 1: CADRE PRINCIPAL (cadre4.jpg) -->
+            <section class="section-main">
+                <div class="card-frame animated-block">
+                    <p class="invitation-title">Invitation au Mariage</p>
+                    
+                    <h1 class="couples-names">
+                        Mohamed
+                        <span class="ampersand">&</span>
+                        Meriem
+                    </h1>
+
+                    <p class="invitation-text">
+                        C'est avec une grande joie et un immense plaisir que nous vous invitons à célébrer notre union et partager avec nous ce moment inoubliable.
+                    </p>
+
+                    <div class="action-buttons">
+                        <a href="#calendarSection" class="btn-custom">
+                            <i class="fa-regular fa-calendar-days"></i> Date 
+                        </a>
+                        <a href="#locationSection" class="btn-custom">
+                            <i class="fa-solid fa-location-dot"></i> Lieu Cérémonie
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: CALENDRIER DÉCEMBRE 2026 (cadre calendrier1.jpg) -->
+            <section class="section-calendar animated-block" id="calendarSection">
+                <div class="calendar-frame">
+                    <h2 class="calendar-header-title">Réservez la Date</h2>
+                    <p class="calendar-month">Décembre 2026</p>
+
+                    <div class="calendar-grid">
+                        <!-- Jours de la semaine -->
+                        <div class="day-name">Lun</div>
+                        <div class="day-name">Mar</div>
+                        <div class="day-name">Mer</div>
+                        <div class="day-name">Jeu</div>
+                        <div class="day-name">Ven</div>
+                        <div class="day-name">Sam</div>
+                        <div class="day-name">Dim</div>
+
+                        <!-- 1er Décembre 2026 commence un Mardi -->
+                        <div class="day-number empty"></div>
+                        <div class="day-number">1</div>
+                        <div class="day-number">2</div>
+                        <div class="day-number">3</div>
+                        <div class="day-number">4</div>
+                        <div class="day-number">5</div>
+                        <div class="day-number">6</div>
+
+                        <div class="day-number">7</div>
+                        <div class="day-number">8</div>
+                        <div class="day-number">9</div>
+                        <div class="day-number">10</div>
+                        <div class="day-number">11</div>
+                        <div class="day-number">12</div>
+                        <div class="day-number">13</div>
+
+                        <div class="day-number">14</div>
+                        <div class="day-number">15</div>
+                        <div class="day-number">16</div>
+                        <div class="day-number">17</div>
+                        <div class="day-number">18</div>
+                        <div class="day-number">19</div>
+                        <div class="day-number">20</div>
+
+                        <div class="day-number">21</div>
+                        <div class="day-number">22</div>
+                        <div class="day-number">23</div>
+                        <div class="day-number">24</div>
+                        <div class="day-number">25</div>
+                        <!-- JOUR DU MARIAGE : 26 DÉCEMBRE -->
+                        <div class="day-number special-day">26</div>
+                        <div class="day-number">27</div>
+
+                        <div class="day-number">28</div>
+                        <div class="day-number">29</div>
+                        <div class="day-number">30</div>
+                        <div class="day-number">31</div>
+                    </div>
+                    
+                </div>
+                
+            </section>
+
+            <!-- SECTION 3: ADRESSE & SALLE -->
+            <section class="section-location animated-block" id="locationSection">
+                <div class="location-card">
+                    <i class="fa-solid fa-champagne-glasses location-icon"></i>
+                    <h3 class="venue-name">Salle des Fêtes Les Palmiers</h3>
+                    <p class="venue-address">
+                        123 Avenue des Roses, Draria, Alger<br>
+                        À partir de 16h30
+                    </p>
+                    <a href="https://maps.google.com" target="_blank" class="btn-custom btn-maps">
+                        <i class="fa-solid fa-map-location-dot"></i> Voir sur Google Maps
+                    </a>
+                </div>
+            </section>
+
+            <!-- SECTION 4: SOYEZ LES BIENVENUS -->
+            <section class="section-welcome animated-block">
+                <div class="welcome-box">
+                    <div class="decor-line">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <h2 class="welcome-title">Soyez les Bienvenus</h2>
+                    <p class="welcome-subtitle">Votre présence fera notre bonheur</p>
+                    <div class="decor-line">
+                        <i class="fa-solid fa-sparkles"></i>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const envelopeWrapper = document.getElementById('envelopeWrapper');
+            const scrollContainer = document.getElementById('scrollContainer');
+            const clickHint = document.querySelector('.click-hint');
+            const animatedBlocks = document.querySelectorAll('.animated-block');
+
+            // 1. Interaction d'ouverture au clic sur l'enveloppe
+            envelopeWrapper.addEventListener('click', () => {
+                // Cacher immédiatement le bouton "Touchez pour ouvrir"
+                if (clickHint) {
+                    clickHint.style.display = 'none';
+                }
+
+                // Switch à envelope5-2.jpg + Division en 2 volets
+                envelopeWrapper.classList.add('clicked');
+
+                // Révéler le contenu scrollable en arrière-plan
+                setTimeout(() => {
+                    scrollContainer.classList.add('visible');
+                }, 300);
+
+                // Supprimer/Cacher totalement l'enveloppe juste après la fin de l'animation des portes (ex: 1200ms)
+                setTimeout(() => {
+                    envelopeWrapper.classList.add('hidden');
+                    envelopeWrapper.style.display = 'none'; // Garantit qu'elle ne réapparaît pas un seul instant
+                }, 1200); // Ajustez cette durée (en ms) selon la vitesse de votre animation d'ouverture
+            });
+
+            // 2. Observer pour déclencher les animations au scroll
+            const observerOptions = {
+                root: scrollContainer,
+                threshold: 0.2
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                    }
+                });
+            }, observerOptions);
+
+            animatedBlocks.forEach(block => observer.observe(block));
+
+            // 3. Générateur de pétales de fleurs
+            const petalsContainer = document.getElementById('petalsContainer');
+            if (petalsContainer) {
+                const petalCount = 12;
+
+                for (let i = 0; i < petalCount; i++) {
+                    const petal = document.createElement('div');
+                    petal.classList.add('petal');
+                    
+                    const size = Math.random() * 10 + 8;
+                    petal.style.width = `${size}px`;
+                    petal.style.height = `${size * 1.4}px`;
+                    petal.style.left = `${Math.random() * 100}%`;
+                    petal.style.animationDuration = `${Math.random() * 5 + 6}s`;
+                    petal.style.animationDelay = `${Math.random() * 5}s`;
+                    
+                    petalsContainer.appendChild(petal);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
